@@ -5,11 +5,15 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.inputmethod.InputBinding
+import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.setPadding
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.ymh.todolist_firebase.databinding.ActivityMainBinding
+import org.w3c.dom.Text
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding : ActivityMainBinding
@@ -39,7 +43,6 @@ class MainActivity : AppCompatActivity() {
                     //itemList.clear()
                     val items = arrayListOf<ListLayout>()
                     for (document in result) {
-                        Log.d("test", "adasdasd")
                         val item = ListLayout(document["name"] as String)
                         items.add(item)
                         //itemList.add(item)
@@ -48,10 +51,38 @@ class MainActivity : AppCompatActivity() {
                     //adapter.notifyDataSetChanged()
                 }
                 .addOnFailureListener { exception ->
-                    Log.w("MainActivity", "Error getting documents: $exception")
+                    Log.w("MainActivity ", "Error getting documents: $exception")
                 }
         }
 
+        binding.plusBtn.setOnClickListener {
+            //대화상자 생성
+            val builder = AlertDialog.Builder(this)
 
+            val tvName = TextView(this)
+            tvName.text = "Name"
+            val etName = EditText(this)
+            etName.isSingleLine = true
+            val mLayout = LinearLayout(this)
+            mLayout.orientation = LinearLayout.VERTICAL
+            mLayout.setPadding(16)
+            mLayout.addView(tvName)
+            mLayout.addView(etName)
+            builder.setView(mLayout)
+
+            builder.setTitle("데이터 추가")
+            builder.setPositiveButton("추가") { dialog, which ->
+
+                val data = hashSetOf(
+                    "name" to etName.text.toString()
+                )
+
+                db.collection("Contacts").add(data).addOnSuccessListener {
+                    Toast.makeText(this, "데이터가 추가되었습니다.", Toast.LENGTH_SHORT).show()
+                }
+
+
+            }
+        }
     }
 }
